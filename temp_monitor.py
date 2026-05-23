@@ -7,6 +7,11 @@ import ctypes
 from datetime import datetime
 
 try:
+    ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+except:
+    pass
+
+try:
     import psutil
 except ImportError:
     subprocess.run([sys.executable, "-m", "pip", "install", "psutil", "-q"],
