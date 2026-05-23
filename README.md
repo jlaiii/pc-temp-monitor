@@ -1,8 +1,8 @@
 # PC Temperature Monitor
 
-A lightweight, real-time CPU and GPU temperature monitor for Windows with a clean dark-themed GUI.
+[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-blue?logo=github)](https://jlaiii.github.io/pc-temp-monitor/)
 
-![Screenshot](docs/screenshot.png)
+A lightweight, real-time CPU and GPU temperature monitor for Windows with a clean dark-themed GUI.
 
 ## Features
 
