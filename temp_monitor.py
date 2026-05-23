@@ -137,12 +137,20 @@ class TempMonitor:
         self.root.mainloop()
 
     def setup_ui(self):
-        title_frame = tk.Frame(self.root, bg=BG)
-        title_frame.pack(pady=(16, 4))
+        self.title_frame = tk.Frame(self.root, bg=BG)
+        self.title_frame.pack(pady=(16, 4))
 
-        self.title_label = tk.Label(title_frame, text="PC Temperature Monitor", font=("Segoe UI", 16, "bold"),
+        self.title_frame.bind("<Button-1>", self._drag_start)
+        self.title_frame.bind("<B1-Motion>", self._drag_move)
+
+        self.title_label = tk.Label(self.title_frame, text="PC Temperature Monitor", font=("Segoe UI", 16, "bold"),
                                      bg=BG, fg=FG)
-        self.title_label.pack()
+        self.title_label.pack(side="left")
+
+        self.close_btn = tk.Label(self.title_frame, text="\u00D7", font=("Segoe UI", 14, "bold"),
+                                   bg=BG, fg=RED, cursor="hand2")
+        self.close_btn.pack(side="right", padx=(20, 0))
+        self.close_btn.bind("<Button-1>", lambda e: self.on_close())
 
         subtitle_frame = tk.Frame(self.root, bg=BG)
         subtitle_frame.pack()
@@ -283,13 +291,16 @@ class TempMonitor:
             self.gpu_card.configure(highlightbackground=BG2)
             self.ram_card.configure(highlightbackground=BG2)
             try:
+                self.root.overrideredirect(True)
                 self.root.attributes('-transparentcolor', BG2)
             except:
                 pass
+            self.close_btn.lift()
             self.minimal_btn.config(text="\u25C9 See-Through", fg=BLUE)
         else:
             try:
                 self.root.attributes('-transparentcolor', '')
+                self.root.overrideredirect(False)
             except:
                 pass
             self._set_bg_all(self.root, BG)
@@ -527,6 +538,15 @@ class TempMonitor:
                 webbrowser.open("https://github.com/jlaiii")
             except:
                 pass
+
+    def _drag_start(self, e):
+        self._drag_x = e.x
+        self._drag_y = e.y
+
+    def _drag_move(self, e):
+        x = self.root.winfo_x() + e.x - self._drag_x
+        y = self.root.winfo_y() + e.y - self._drag_y
+        self.root.geometry(f"+{x}+{y}")
 
     def on_close(self):
         self.running = False
