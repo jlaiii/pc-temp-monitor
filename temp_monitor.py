@@ -123,6 +123,7 @@ class TempMonitor:
         self.cpu_source = ""
         self.gpu_source = ""
         self.use_fahrenheit = False
+        self.minimal_mode = False
         self.cpu_min = None
         self.cpu_max = None
         self.gpu_min = None
@@ -139,13 +140,15 @@ class TempMonitor:
         title_frame = tk.Frame(self.root, bg=BG)
         title_frame.pack(pady=(16, 4))
 
-        tk.Label(title_frame, text="PC Temperature Monitor", font=("Segoe UI", 16, "bold"),
-                 bg=BG, fg=FG).pack()
+        self.title_label = tk.Label(title_frame, text="PC Temperature Monitor", font=("Segoe UI", 16, "bold"),
+                                     bg=BG, fg=FG)
+        self.title_label.pack()
 
         subtitle_frame = tk.Frame(self.root, bg=BG)
         subtitle_frame.pack()
-        tk.Label(subtitle_frame, text="Real-time CPU & GPU tracking", font=("Segoe UI", 9),
-                 bg=BG, fg=FG2).pack(side="left")
+        self.subtitle_text = tk.Label(subtitle_frame, text="Real-time CPU & GPU tracking",
+                                       font=("Segoe UI", 9), bg=BG, fg=FG2)
+        self.subtitle_text.pack(side="left")
 
         self.unit_btn = tk.Button(subtitle_frame, text="\u00b0C", font=("Segoe UI", 8, "bold"),
                                    bg=BG3, fg=FG, activebackground=BG2, activeforeground=FG,
@@ -165,29 +168,35 @@ class TempMonitor:
                                     command=self.reset_minmax)
         self.reset_btn.pack(side="left", padx=(6, 0))
 
+        self.minimal_btn = tk.Button(subtitle_frame, text="Minimal", font=("Segoe UI", 8, "bold"),
+                                      bg=BG3, fg=FG2, activebackground=BG2, activeforeground=FG,
+                                      relief="flat", padx=8, cursor="hand2", bd=0,
+                                      command=self.toggle_minimal)
+        self.minimal_btn.pack(side="left", padx=(6, 0))
+
         main = tk.Frame(self.root, bg=BG)
         main.pack(expand=True, fill="both", padx=20, pady=6)
 
         self.cpu_card = tk.Frame(main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
         self.cpu_card.pack(fill="x", pady=4, ipady=6)
 
-        row1 = tk.Frame(self.cpu_card, bg=BG2)
-        row1.pack(fill="x", padx=16, pady=(8, 0))
-        tk.Label(row1, text="CPU", font=("Segoe UI", 13, "bold"), bg=BG2, fg=BLUE).pack(side="left")
-        self.cpu_usage_label = tk.Label(row1, text="", font=("Segoe UI", 9), bg=BG2, fg=FG2)
+        self.cpu_row1 = tk.Frame(self.cpu_card, bg=BG2)
+        self.cpu_row1.pack(fill="x", padx=16, pady=(8, 0))
+        tk.Label(self.cpu_row1, text="CPU", font=("Segoe UI", 13, "bold"), bg=BG2, fg=BLUE).pack(side="left")
+        self.cpu_usage_label = tk.Label(self.cpu_row1, text="", font=("Segoe UI", 9), bg=BG2, fg=FG2)
         self.cpu_usage_label.pack(side="right")
 
         self.cpu_temp_label = tk.Label(self.cpu_card, text="-- \u00b0C", font=("Segoe UI", 32, "bold"),
                                         bg=BG2, fg=FG2)
         self.cpu_temp_label.pack(pady=(0, 2))
 
-        cpu_minmax_frame = tk.Frame(self.cpu_card, bg=BG2)
-        cpu_minmax_frame.pack()
-        tk.Label(cpu_minmax_frame, text="Lo ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.cpu_min_label = tk.Label(cpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=BLUE)
+        self.cpu_minmax_frame = tk.Frame(self.cpu_card, bg=BG2)
+        self.cpu_minmax_frame.pack()
+        tk.Label(self.cpu_minmax_frame, text="Lo ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
+        self.cpu_min_label = tk.Label(self.cpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=BLUE)
         self.cpu_min_label.pack(side="left")
-        tk.Label(cpu_minmax_frame, text="  Hi ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.cpu_max_label = tk.Label(cpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=RED)
+        tk.Label(self.cpu_minmax_frame, text="  Hi ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
+        self.cpu_max_label = tk.Label(self.cpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=RED)
         self.cpu_max_label.pack(side="left")
 
         self.cpu_status = tk.Label(self.cpu_card, text="Detecting...", font=("Segoe UI", 8), bg=BG2, fg=FG2)
@@ -196,23 +205,23 @@ class TempMonitor:
         self.gpu_card = tk.Frame(main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
         self.gpu_card.pack(fill="x", pady=4, ipady=6)
 
-        row2 = tk.Frame(self.gpu_card, bg=BG2)
-        row2.pack(fill="x", padx=16, pady=(8, 0))
-        tk.Label(row2, text="GPU", font=("Segoe UI", 13, "bold"), bg=BG2, fg=PURPLE).pack(side="left")
-        self.gpu_usage_label = tk.Label(row2, text="", font=("Segoe UI", 9), bg=BG2, fg=FG2)
+        self.gpu_row2 = tk.Frame(self.gpu_card, bg=BG2)
+        self.gpu_row2.pack(fill="x", padx=16, pady=(8, 0))
+        tk.Label(self.gpu_row2, text="GPU", font=("Segoe UI", 13, "bold"), bg=BG2, fg=PURPLE).pack(side="left")
+        self.gpu_usage_label = tk.Label(self.gpu_row2, text="", font=("Segoe UI", 9), bg=BG2, fg=FG2)
         self.gpu_usage_label.pack(side="right")
 
         self.gpu_temp_label = tk.Label(self.gpu_card, text="-- \u00b0C", font=("Segoe UI", 32, "bold"),
                                         bg=BG2, fg=FG2)
         self.gpu_temp_label.pack(pady=(0, 2))
 
-        gpu_minmax_frame = tk.Frame(self.gpu_card, bg=BG2)
-        gpu_minmax_frame.pack()
-        tk.Label(gpu_minmax_frame, text="Lo ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.gpu_min_label = tk.Label(gpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=PURPLE)
+        self.gpu_minmax_frame = tk.Frame(self.gpu_card, bg=BG2)
+        self.gpu_minmax_frame.pack()
+        tk.Label(self.gpu_minmax_frame, text="Lo ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
+        self.gpu_min_label = tk.Label(self.gpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=PURPLE)
         self.gpu_min_label.pack(side="left")
-        tk.Label(gpu_minmax_frame, text="  Hi ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.gpu_max_label = tk.Label(gpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=RED)
+        tk.Label(self.gpu_minmax_frame, text="  Hi ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
+        self.gpu_max_label = tk.Label(self.gpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=RED)
         self.gpu_max_label.pack(side="left")
 
         self.gpu_status = tk.Label(self.gpu_card, text="Detecting...", font=("Segoe UI", 8), bg=BG2, fg=FG2)
@@ -254,6 +263,33 @@ class TempMonitor:
             pass
         txt = "\u25B2 Pin" if self.on_top else "\u25BC Pin"
         self.pin_btn.config(text=txt, fg=BLUE if self.on_top else FG2)
+
+    def toggle_minimal(self):
+        self.minimal_mode = not self.minimal_mode
+        extra = [self.cpu_row1, self.cpu_minmax_frame, self.cpu_status,
+                 self.gpu_row2, self.gpu_minmax_frame, self.gpu_status,
+                 self.ram_card, self.reset_btn, self.subtitle_text]
+        if self.minimal_mode:
+            for w in extra:
+                w.pack_forget()
+            self.cpu_temp_label.config(font=("Segoe UI", 48, "bold"))
+            self.gpu_temp_label.config(font=("Segoe UI", 48, "bold"))
+            self.root.geometry("520x260")
+            self.minimal_btn.config(text="Full", fg=BLUE)
+        else:
+            self.cpu_row1.pack(fill="x", padx=16, pady=(8, 0))
+            self.cpu_minmax_frame.pack()
+            self.cpu_status.pack()
+            self.gpu_row2.pack(fill="x", padx=16, pady=(8, 0))
+            self.gpu_minmax_frame.pack()
+            self.gpu_status.pack()
+            self.ram_card.pack(fill="x", pady=4, ipady=4)
+            self.reset_btn.pack(side="left", padx=(6, 0))
+            self.subtitle_text.pack(side="left")
+            self.cpu_temp_label.config(font=("Segoe UI", 32, "bold"))
+            self.gpu_temp_label.config(font=("Segoe UI", 32, "bold"))
+            self.root.geometry("520x600")
+            self.minimal_btn.config(text="Minimal", fg=FG2)
 
     def reset_minmax(self):
         self.cpu_min = None
