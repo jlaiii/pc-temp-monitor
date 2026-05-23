@@ -123,7 +123,7 @@ class TempMonitor:
         self.cpu_source = ""
         self.gpu_source = ""
         self.use_fahrenheit = False
-        self.minimal_mode = False
+        self.transparent = False
         self.cpu_min = None
         self.cpu_max = None
         self.gpu_min = None
@@ -168,7 +168,7 @@ class TempMonitor:
                                     command=self.reset_minmax)
         self.reset_btn.pack(side="left", padx=(6, 0))
 
-        self.minimal_btn = tk.Button(subtitle_frame, text="Minimal", font=("Segoe UI", 8, "bold"),
+        self.minimal_btn = tk.Button(subtitle_frame, text="\u25CB Opaque", font=("Segoe UI", 8, "bold"),
                                       bg=BG3, fg=FG2, activebackground=BG2, activeforeground=FG,
                                       relief="flat", padx=8, cursor="hand2", bd=0,
                                       command=self.toggle_minimal)
@@ -265,31 +265,14 @@ class TempMonitor:
         self.pin_btn.config(text=txt, fg=BLUE if self.on_top else FG2)
 
     def toggle_minimal(self):
-        self.minimal_mode = not self.minimal_mode
-        extra = [self.cpu_row1, self.cpu_minmax_frame, self.cpu_status,
-                 self.gpu_row2, self.gpu_minmax_frame, self.gpu_status,
-                 self.ram_card, self.reset_btn, self.subtitle_text]
-        if self.minimal_mode:
-            for w in extra:
-                w.pack_forget()
-            self.cpu_temp_label.config(font=("Segoe UI", 48, "bold"))
-            self.gpu_temp_label.config(font=("Segoe UI", 48, "bold"))
-            self.root.geometry("520x260")
-            self.minimal_btn.config(text="Full", fg=BLUE)
-        else:
-            self.cpu_row1.pack(fill="x", padx=16, pady=(8, 0))
-            self.cpu_minmax_frame.pack()
-            self.cpu_status.pack()
-            self.gpu_row2.pack(fill="x", padx=16, pady=(8, 0))
-            self.gpu_minmax_frame.pack()
-            self.gpu_status.pack()
-            self.ram_card.pack(fill="x", pady=4, ipady=4)
-            self.reset_btn.pack(side="left", padx=(6, 0))
-            self.subtitle_text.pack(side="left")
-            self.cpu_temp_label.config(font=("Segoe UI", 32, "bold"))
-            self.gpu_temp_label.config(font=("Segoe UI", 32, "bold"))
-            self.root.geometry("520x600")
-            self.minimal_btn.config(text="Minimal", fg=FG2)
+        self.transparent = not self.transparent
+        alpha = 0.35 if self.transparent else 1.0
+        try:
+            self.root.attributes('-alpha', alpha)
+        except:
+            pass
+        self.minimal_btn.config(text="\u25C9 See-Through" if self.transparent else "\u25CB Opaque",
+                                fg=BLUE if self.transparent else FG2)
 
     def reset_minmax(self):
         self.cpu_min = None
