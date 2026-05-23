@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC Temperature Monitor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f1a; color: #e0e0f0; line-height: 1.6; }
+  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+  h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 8px; }
+  .subtitle { color: #9090b0; font-size: 1.1rem; margin-bottom: 40px; }
+  h2 { font-size: 1.4rem; font-weight: 700; margin: 32px 0 12px; color: #60a5fa; }
+  p { margin-bottom: 16px; color: #c0c0d0; }
+  ul { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  li { background: #1a1a2e; padding: 14px 18px; border-radius: 8px; border: 1px solid #25253d; font-size: 0.95rem; }
+  li span { color: #a78bfa; font-weight: 600; }
+  .btn { display: inline-block; background: #4ade80; color: #0f0f1a; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; margin: 8px 8px 8px 0; transition: opacity 0.2s; }
+  .btn:hover { opacity: 0.85; }
+  .btn-secondary { background: #25253d; color: #e0e0f0; }
+  code { background: #1a1a2e; padding: 2px 8px; border-radius: 4px; font-size: 0.9rem; color: #fbbf24; }
+  pre { background: #1a1a2e; padding: 16px; border-radius: 8px; overflow-x: auto; border: 1px solid #25253d; margin-bottom: 16px; }
+  pre code { background: none; padding: 0; color: #a6e3a1; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid #25253d; }
+  th { color: #60a5fa; font-weight: 600; }
+  td { color: #c0c0d0; }
+  .screenshot { background: #1a1a2e; border: 1px solid #25253d; border-radius: 12px; padding: 60px 20px; text-align: center; color: #9090b0; margin-bottom: 24px; font-size: 0.9rem; }
+  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #25253d; color: #606080; font-size: 0.85rem; }
+  @media (max-width: 600px) { ul { grid-template-columns: 1fr; } h1 { font-size: 1.8rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>PC Temperature Monitor</h1>
+  <p class="subtitle">Real-time CPU &amp; GPU temperature tracker for Windows</p>
+
+  <a class="btn" href="https://github.com/jlaiii/pc-temp-monitor/releases">Download</a>
+  <a class="btn btn-secondary" href="https://github.com/jlaiii/pc-temp-monitor">View on GitHub</a>
+
+  <div class="screenshot">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#606080" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    <p style="margin-top:12px">Screenshot coming soon &mdash; run the app to see it live</p>
+  </div>
+
+  <h2>Features</h2>
+  <ul>
+    <li><span>Live refresh</span> &mdash; temps update every 2 seconds</li>
+    <li><span>Min / Max</span> &mdash; tracks lowest and highest temps</li>
+    <li><span>Color-coded</span> &mdash; green, yellow, red thresholds</li>
+    <li><span>°C / °F toggle</span> &mdash; click to switch units</li>
+    <li><span>Self-elevating</span> &mdash; one UAC prompt for accurate temps</li>
+    <li><span>Zero setup</span> &mdash; auto-installs dependencies</li>
+  </ul>
+
+  <h2>Quick Start</h2>
+  <pre><code>python temp_monitor.py</code></pre>
+  <p>Or double-click the file in Explorer. Accept the UAC prompt when it appears.</p>
+
+  <h2>How It Works</h2>
+  <table>
+    <tr><th>Component</th><th>Method</th><th>Source</th></tr>
+    <tr><td>CPU temp</td><td>LibreHardwareMonitor</td><td>Direct hardware (admin)</td></tr>
+    <tr><td>CPU (fallback)</td><td>WMI thermal zone</td><td>Chassis sensor</td></tr>
+    <tr><td>GPU temp</td><td>nvidia-smi</td><td>NVIDIA driver</td></tr>
+    <tr><td>CPU / RAM usage</td><td>psutil</td><td>Windows API</td></tr>
+  </table>
+
+  <h2>Requirements</h2>
+  <p>Windows 10+, Python 3.8+, NVIDIA GPU. Internet on first run for dependency installs.</p>
+
+  <div class="footer">
+    <p>MIT License &mdash; Built with Python, tkinter, LibreHardwareMonitor</p>
+  </div>
+</div>
+</body>
+</html>
