@@ -110,6 +110,10 @@ class TempMonitor:
         self.root.geometry(f"{w}x{h}+{x}+{y}")
         self.root.configure(bg=BG)
         self.root.resizable(False, False)
+        try:
+            self.root.overrideredirect(True)
+        except:
+            pass
 
         self.running = True
         self.cpu_temp = None
@@ -147,9 +151,14 @@ class TempMonitor:
                                      bg=BG, fg=FG)
         self.title_label.pack(side="left")
 
+        self.min_btn = tk.Label(self.title_frame, text="\u2014", font=("Segoe UI", 14, "bold"),
+                                 bg=BG, fg=FG2, cursor="hand2")
+        self.min_btn.pack(side="right", padx=(0, 2))
+        self.min_btn.bind("<Button-1>", lambda e: self.root.iconify())
+
         self.close_btn = tk.Label(self.title_frame, text="\u00D7", font=("Segoe UI", 14, "bold"),
                                    bg=BG, fg=RED, cursor="hand2")
-        self.close_btn.pack(side="right", padx=(10, 0))
+        self.close_btn.pack(side="right")
         self.close_btn.bind("<Button-1>", lambda e: self.on_close())
 
         subtitle_frame = tk.Frame(self.root, bg=BG)
@@ -294,23 +303,24 @@ class TempMonitor:
                 btn.configure(bg=BG3, fg=FG)
             self.minimal_btn.configure(fg=BLUE)
             self.close_btn.configure(bg="#2a0a0a")
+            self.min_btn.configure(bg="#2a0a0a")
             try:
-                self.root.overrideredirect(True)
                 self.root.attributes('-transparentcolor', BG2)
             except:
                 pass
             self.close_btn.lift()
+            self.min_btn.lift()
             self.minimal_btn.config(text="\u25C9 See-Through")
         else:
             try:
                 self.root.attributes('-transparentcolor', '')
-                self.root.overrideredirect(False)
             except:
                 pass
             self.root.configure(bg=BG)
             self.title_frame.configure(bg=BG)
             self.title_label.configure(bg=BG)
             self.close_btn.configure(bg=BG)
+            self.min_btn.configure(bg=BG)
             self.subtitle_text.configure(bg=BG)
             self.unit_btn.configure(bg=BG3)
             self.pin_btn.configure(bg=BG3)
