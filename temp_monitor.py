@@ -214,8 +214,15 @@ class TempMonitor:
         self.ram_bar = tk.Frame(self.ram_bar_frame, bg=GREEN, height=10)
         self.ram_bar.place(x=0, y=0, relwidth=0, relheight=1)
 
-        self.footer = tk.Label(self.root, text="", font=("Segoe UI", 8), bg=BG, fg=FG2)
-        self.footer.pack(side="bottom", pady=(0, 12))
+        foot_frame = tk.Frame(self.root, bg=BG)
+        foot_frame.pack(side="bottom", pady=(0, 12))
+        self.footer = tk.Label(foot_frame, text="", font=("Segoe UI", 8), bg=BG, fg=FG2)
+        self.footer.pack(side="left")
+        self.footer_link = tk.Label(foot_frame, text="made by jlaiii", font=("Segoe UI", 8),
+                                     bg=BG, fg=BLUE, cursor="hand2")
+        self.footer_link.pack(side="left")
+        self.footer_link.bind("<Button-1>", lambda e: self._open_github())
+        self.footer_link.bind("<Enter>", lambda e: None)
 
     def toggle_unit(self):
         self.use_fahrenheit = not self.use_fahrenheit
@@ -418,8 +425,18 @@ class TempMonitor:
 
         now = datetime.now().strftime("%I:%M:%S %p")
         unit = "\u00b0F" if self.use_fahrenheit else "\u00b0C"
-        self.footer.config(text=f"{now}  |  {unit}  |  Admin mode  |  2s refresh")
+        self.footer.config(text=f"{now}  |  {unit}  |  Admin mode  |  ")
         self.root.after(2000, self.update)
+
+    def _open_github(self):
+        try:
+            subprocess.Popen(["cmd", "/c", "start", "https://github.com/jlaiii"])
+        except:
+            try:
+                import webbrowser
+                webbrowser.open("https://github.com/jlaiii")
+            except:
+                pass
 
     def on_close(self):
         self.running = False
