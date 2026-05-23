@@ -142,14 +142,16 @@ class TempMonitor:
 
     def setup_ui(self):
         self.title_frame = tk.Frame(self.root, bg=BG)
-        self.title_frame.pack(pady=(8, 2))
+        self.title_frame.pack(fill="x", ipady=2, pady=(8, 2))
 
         self.title_frame.bind("<Button-1>", self._drag_start)
         self.title_frame.bind("<B1-Motion>", self._drag_move)
 
         self.title_label = tk.Label(self.title_frame, text="PC Temp Monitor", font=("Segoe UI", 15, "bold"),
                                      bg=BG, fg=FG)
-        self.title_label.pack(side="left")
+        self.title_label.pack(side="left", fill="x", expand=True)
+        self.title_label.bind("<Button-1>", self._drag_start)
+        self.title_label.bind("<B1-Motion>", self._drag_move)
 
         self.min_btn = tk.Label(self.title_frame, text="\u2014", font=("Segoe UI", 14, "bold"),
                                  bg=BG, fg=FG2, cursor="hand2")
