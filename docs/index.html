@@ -6,72 +6,282 @@
 <title>PC Temperature Monitor</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f1a; color: #e0e0f0; line-height: 1.6; }
-  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-  h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 8px; }
-  .subtitle { color: #9090b0; font-size: 1.1rem; margin-bottom: 40px; }
-  h2 { font-size: 1.4rem; font-weight: 700; margin: 32px 0 12px; color: #60a5fa; }
-  p { margin-bottom: 16px; color: #c0c0d0; }
-  ul { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
-  li { background: #1a1a2e; padding: 14px 18px; border-radius: 8px; border: 1px solid #25253d; font-size: 0.95rem; }
-  li span { color: #a78bfa; font-weight: 600; }
-  .btn { display: inline-block; background: #4ade80; color: #0f0f1a; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; margin: 8px 8px 8px 0; transition: opacity 0.2s; }
-  .btn:hover { opacity: 0.85; }
-  .btn-secondary { background: #25253d; color: #e0e0f0; }
-  code { background: #1a1a2e; padding: 2px 8px; border-radius: 4px; font-size: 0.9rem; color: #fbbf24; }
-  pre { background: #1a1a2e; padding: 16px; border-radius: 8px; overflow-x: auto; border: 1px solid #25253d; margin-bottom: 16px; }
-  pre code { background: none; padding: 0; color: #a6e3a1; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid #25253d; }
-  th { color: #60a5fa; font-weight: 600; }
-  td { color: #c0c0d0; }
-  .screenshot { background: #1a1a2e; border: 1px solid #25253d; border-radius: 12px; padding: 60px 20px; text-align: center; color: #9090b0; margin-bottom: 24px; font-size: 0.9rem; }
-  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #25253d; color: #606080; font-size: 0.85rem; }
-  @media (max-width: 600px) { ul { grid-template-columns: 1fr; } h1 { font-size: 1.8rem; } }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #08080f; color: #e0e0f0; line-height: 1.6; overflow-x: hidden; min-height: 100vh; }
+
+  /* ---------- animated background ---------- */
+  #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .content { position: relative; z-index: 1; }
+
+  /* ---------- hero ---------- */
+  .hero { text-align: center; padding: 80px 20px 60px; position: relative; }
+  .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 2px; background: linear-gradient(90deg, transparent, #4ade80, transparent); }
+  .hero h1 { font-size: 3.2rem; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #e0e0f0 0%, #60a5fa 50%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+  .hero .subtitle { font-size: 1.15rem; color: #8080a0; max-width: 520px; margin: 0 auto 32px; }
+
+  /* ---------- buttons ---------- */
+  .hero-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all 0.25s; border: none; cursor: pointer; }
+  .btn-primary { background: linear-gradient(135deg, #4ade80, #22c55e); color: #0a0a14; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(74,222,128,0.3); }
+  .btn-secondary { background: rgba(255,255,255,0.06); color: #e0e0f0; border: 1px solid rgba(255,255,255,0.1); }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+  /* ---------- demo ---------- */
+  .demo-section { padding: 40px 20px; }
+  .demo-card { max-width: 540px; margin: 0 auto; background: rgba(15,15,30,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 32px; }
+  .demo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .demo-header h2 { font-size: 1.1rem; font-weight: 700; color: #c0c0e0; }
+  .demo-badge { font-size: 0.7rem; background: rgba(74,222,128,0.15); color: #4ade80; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+  .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .demo-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 18px; text-align: center; }
+  .demo-item .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #606080; margin-bottom: 6px; }
+  .demo-item .value { font-size: 2.4rem; font-weight: 800; }
+  .demo-item .sub { font-size: 0.7rem; color: #505070; margin-top: 4px; }
+  .demo-item .bar { margin-top: 10px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .demo-item .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease, background 0.6s ease; }
+
+  .demo-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; color: #505070; }
+  .demo-foot .unit-toggle { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: #9090b0; padding: 4px 14px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: 0.2s; }
+  .demo-foot .unit-toggle:hover { background: rgba(255,255,255,0.1); color: #e0e0f0; }
+
+  /* ---------- features ---------- */
+  .section { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+  .section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: #c0c0e0; text-align: center; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .feature-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 18px; transition: 0.2s; }
+  .feature-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+  .feature-card .icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .feature-card .title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .feature-card .desc { font-size: 0.82rem; color: #707090; }
+
+  /* ---------- how it works ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 0 auto 24px; max-width: 600px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+  th { color: #60a5fa; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { color: #a0a0c0; }
+
+  pre { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; overflow-x: auto; max-width: 600px; margin: 0 auto; }
+  pre code { font-size: 0.85rem; color: #a6e3a1; }
+
+  /* ---------- footer ---------- */
+  .footer { text-align: center; padding: 40px 20px; color: #404060; font-size: 0.8rem; }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 2rem; }
+    .demo-grid { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .demo-item .value { font-size: 2rem; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>PC Temperature Monitor</h1>
-  <p class="subtitle">Real-time CPU &amp; GPU temperature tracker for Windows</p>
+<canvas id="bg-canvas"></canvas>
+<div class="content">
 
-  <a class="btn" href="https://github.com/jlaiii/pc-temp-monitor/releases">Download</a>
-  <a class="btn btn-secondary" href="https://github.com/jlaiii/pc-temp-monitor">View on GitHub</a>
-
-  <div class="screenshot">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#606080" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-    <p style="margin-top:12px">Screenshot coming soon &mdash; run the app to see it live</p>
+  <div class="hero">
+    <h1>PC Temperature Monitor</h1>
+    <p class="subtitle">Real-time CPU &amp; GPU temperature tracker for Windows. Zero setup, live updates.</p>
+    <div class="hero-btns">
+      <a class="btn btn-primary" href="https://github.com/jlaiii/pc-temp-monitor/raw/main/temp_monitor.py">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </a>
+      <a class="btn btn-secondary" href="https://github.com/jlaiii/pc-temp-monitor">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02.8-.22 1.65-.33 2.5-.33s1.7.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48C19.14 20.16 22 16.42 22 12c0-5.52-4.48-10-10-10z"/></svg>
+        GitHub
+      </a>
+    </div>
   </div>
 
-  <h2>Features</h2>
-  <ul>
-    <li><span>Live refresh</span> &mdash; temps update every 2 seconds</li>
-    <li><span>Min / Max</span> &mdash; tracks lowest and highest temps</li>
-    <li><span>Color-coded</span> &mdash; green, yellow, red thresholds</li>
-    <li><span>°C / °F toggle</span> &mdash; click to switch units</li>
-    <li><span>Self-elevating</span> &mdash; one UAC prompt for accurate temps</li>
-    <li><span>Zero setup</span> &mdash; auto-installs dependencies</li>
-  </ul>
+  <!-- live demo -->
+  <div class="demo-section">
+    <div class="demo-card">
+      <div class="demo-header">
+        <h2>Live Demo</h2>
+        <span class="demo-badge">simulated</span>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-item" id="cpu-card">
+          <div class="label">CPU</div>
+          <div class="value" id="cpu-temp">--</div>
+          <div class="sub" id="cpu-range">Lo -- / Hi --</div>
+          <div class="bar"><div class="bar-fill" id="cpu-bar" style="width:0%"></div></div>
+        </div>
+        <div class="demo-item" id="gpu-card">
+          <div class="label">GPU</div>
+          <div class="value" id="gpu-temp">--</div>
+          <div class="sub" id="gpu-range">Lo -- / Hi --</div>
+          <div class="bar"><div class="bar-fill" id="gpu-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="demo-foot">
+        <span id="demo-ts">--</span>
+        <button class="unit-toggle" id="unit-btn">°F</button>
+      </div>
+    </div>
+  </div>
 
-  <h2>Quick Start</h2>
-  <pre><code>python temp_monitor.py</code></pre>
-  <p>Or double-click the file in Explorer. Accept the UAC prompt when it appears.</p>
+  <!-- features -->
+  <div class="section">
+    <h2>Features</h2>
+    <div class="grid-2">
+      <div class="feature-card"><div class="icon">⚡</div><div class="title">Live refresh</div><div class="desc">CPU &amp; GPU temps update every 2 seconds in real-time</div></div>
+      <div class="feature-card"><div class="icon">📊</div><div class="title">Min / Max</div><div class="desc">Tracks lowest and highest temperatures during the session</div></div>
+      <div class="feature-card"><div class="icon">🎨</div><div class="title">Color-coded</div><div class="desc">Green for safe, yellow for warm, red for hot thresholds</div></div>
+      <div class="feature-card"><div class="icon">🌡️</div><div class="title">°C / °F toggle</div><div class="desc">Click the unit button to switch between Celsius and Fahrenheit</div></div>
+      <div class="feature-card"><div class="icon">🔑</div><div class="title">Self-elevating</div><div class="desc">One UAC prompt grants access to accurate CPU readings</div></div>
+      <div class="feature-card"><div class="icon">📦</div><div class="title">Zero setup</div><div class="desc">Auto-installs dependencies — just double-click and go</div></div>
+    </div>
+  </div>
 
-  <h2>How It Works</h2>
-  <table>
-    <tr><th>Component</th><th>Method</th><th>Source</th></tr>
-    <tr><td>CPU temp</td><td>LibreHardwareMonitor</td><td>Direct hardware (admin)</td></tr>
-    <tr><td>CPU (fallback)</td><td>WMI thermal zone</td><td>Chassis sensor</td></tr>
-    <tr><td>GPU temp</td><td>nvidia-smi</td><td>NVIDIA driver</td></tr>
-    <tr><td>CPU / RAM usage</td><td>psutil</td><td>Windows API</td></tr>
-  </table>
+  <!-- how it works -->
+  <div class="section">
+    <h2>How It Works</h2>
+    <table>
+      <tr><th>Component</th><th>Method</th><th>Source</th></tr>
+      <tr><td>CPU temp</td><td>LibreHardwareMonitor</td><td>Direct hardware access</td></tr>
+      <tr><td>CPU (fallback)</td><td>WMI thermal zone</td><td>Chassis / ambient sensor</td></tr>
+      <tr><td>GPU temp</td><td>nvidia-smi</td><td>NVIDIA driver API</td></tr>
+      <tr><td>CPU / RAM usage</td><td>psutil</td><td>Windows system API</td></tr>
+    </table>
+  </div>
 
-  <h2>Requirements</h2>
-  <p>Windows 10+, Python 3.8+, NVIDIA GPU. Internet on first run for dependency installs.</p>
+  <!-- quick start -->
+  <div class="section">
+    <h2>Quick Start</h2>
+    <pre><code>python temp_monitor.py</code></pre>
+  </div>
 
   <div class="footer">
-    <p>MIT License &mdash; Built with Python, tkinter, LibreHardwareMonitor</p>
+    <p>MIT License &middot; Python &middot; tkinter &middot; LibreHardwareMonitor</p>
   </div>
 </div>
+
+<script>
+  /* ---------- animated background ---------- */
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+
+  const particles = [];
+  for (let i = 0; i < 90; i++) {
+    particles.push({
+      x: Math.random() * W, y: Math.random() * H, r: Math.random() * 2 + 1,
+      dx: (Math.random() - 0.5) * 0.3, dy: (Math.random() - 0.5) * 0.3,
+      o: Math.random() * 0.4 + 0.1
+    });
+  }
+
+  function drawBg() {
+    ctx.clearRect(0, 0, W, H);
+    const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.7);
+    grad.addColorStop(0, '#12102a');
+    grad.addColorStop(1, '#08080f');
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+
+    for (const p of particles) {
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > W) p.dx *= -1;
+      if (p.y < 0 || p.y > H) p.dy *= -1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(96, 165, 250, ${p.o})`;
+      ctx.fill();
+    }
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 130) {
+          ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(96, 165, 250, ${0.06 * (1 - dist / 130)})`;
+          ctx.lineWidth = 0.5; ctx.stroke();
+        }
+      }
+    }
+
+    // glow spots
+    const t = Date.now() / 4000;
+    for (let g = 0; g < 3; g++) {
+      const gx = W * (0.2 + 0.6 * (g / 2)), gy = H * (0.3 + 0.4 * Math.sin(t + g * 2));
+      const grd = ctx.createRadialGradient(gx, gy, 0, gx, gy, 180);
+      grd.addColorStop(0, g === 0 ? 'rgba(74,222,128,0.04)' : g === 1 ? 'rgba(96,165,250,0.04)' : 'rgba(167,139,250,0.04)');
+      grd.addColorStop(1, 'transparent');
+      ctx.fillStyle = grd; ctx.fillRect(gx - 180, gy - 180, 360, 360);
+    }
+
+    requestAnimationFrame(drawBg);
+  }
+  drawBg();
+
+  /* ---------- live demo ---------- */
+  let useF = false;
+  let cpu = { cur: 42, min: 42, max: 42 };
+  let gpu = { cur: 38, min: 38, max: 38 };
+  const el = id => document.getElementById(id);
+
+  function tempStr(c) { return useF ? Math.round(c * 9/5 + 32) + '°F' : Math.round(c) + '°C'; }
+  function tempVal(c) { return useF ? Math.round(c * 9/5 + 32) : Math.round(c); }
+
+  function tempColor(c, lo, hi) {
+    const t = useF ? c * 9/5 + 32 : c;
+    const tl = useF ? lo * 9/5 + 32 : lo;
+    const th = useF ? hi * 9/5 + 32 : hi;
+    if (t < tl) return '#4ade80';
+    if (t < th) return '#fbbf24';
+    return '#f87171';
+  }
+
+  function tempBarPct(c) {
+    const min = 30, max = 90;
+    const clamped = Math.max(min, Math.min(max, c));
+    return ((clamped - min) / (max - min)) * 100;
+  }
+
+  function updateDemo() {
+    // random walk
+    cpu.cur += (Math.random() - 0.48) * 1.4;
+    cpu.cur = Math.max(30, Math.min(88, cpu.cur));
+    gpu.cur += (Math.random() - 0.47) * 1.6;
+    gpu.cur = Math.max(28, Math.min(85, gpu.cur));
+    if (cpu.cur < cpu.min) cpu.min = cpu.cur;
+    if (cpu.cur > cpu.max) cpu.max = cpu.cur;
+    if (gpu.cur < gpu.min) gpu.min = gpu.cur;
+    if (gpu.cur > gpu.max) gpu.max = gpu.cur;
+
+    const cpuC = tempColor(cpu.cur, 50, 70);
+    const gpuC = tempColor(gpu.cur, 50, 75);
+
+    el('cpu-temp').textContent = tempStr(cpu.cur);
+    el('cpu-temp').style.color = cpuC;
+    el('cpu-range').textContent = `Lo ${tempStr(cpu.min)} / Hi ${tempStr(cpu.max)}`;
+    el('cpu-bar').style.width = tempBarPct(cpu.cur) + '%';
+    el('cpu-bar').style.background = cpuC;
+
+    el('gpu-temp').textContent = tempStr(gpu.cur);
+    el('gpu-temp').style.color = gpuC;
+    el('gpu-range').textContent = `Lo ${tempStr(gpu.min)} / Hi ${tempStr(gpu.max)}`;
+    el('gpu-bar').style.width = tempBarPct(gpu.cur) + '%';
+    el('gpu-bar').style.background = gpuC;
+
+    const now = new Date();
+    el('demo-ts').textContent = 'Updated ' + now.toLocaleTimeString();
+  }
+
+  updateDemo();
+  setInterval(updateDemo, 2000);
+
+  el('unit-btn').addEventListener('click', () => {
+    useF = !useF;
+    el('unit-btn').textContent = useF ? '°C' : '°F';
+    updateDemo();
+  });
+</script>
 </body>
 </html>
