@@ -102,7 +102,7 @@ class TempMonitor:
         except:
             pass
 
-        w, h = 370, 400
+        w, h = 370, 480
         sw = self.root.winfo_screenwidth()
         sh = self.root.winfo_screenheight()
         x = (sw - w) // 2
