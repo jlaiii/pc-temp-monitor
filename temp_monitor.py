@@ -290,13 +290,17 @@ class TempMonitor:
             self.cpu_card.configure(highlightbackground=BG2)
             self.gpu_card.configure(highlightbackground=BG2)
             self.ram_card.configure(highlightbackground=BG2)
+            for btn in [self.unit_btn, self.pin_btn, self.reset_btn, self.minimal_btn]:
+                btn.configure(bg=BG3, fg=FG)
+            self.minimal_btn.configure(fg=BLUE)
+            self.close_btn.configure(bg="#2a0a0a")
             try:
                 self.root.overrideredirect(True)
                 self.root.attributes('-transparentcolor', BG2)
             except:
                 pass
             self.close_btn.lift()
-            self.minimal_btn.config(text="\u25C9 See-Through", fg=BLUE)
+            self.minimal_btn.config(text="\u25C9 See-Through")
         else:
             try:
                 self.root.attributes('-transparentcolor', '')
