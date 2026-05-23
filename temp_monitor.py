@@ -182,10 +182,10 @@ class TempMonitor:
                                       command=self.toggle_minimal)
         self.minimal_btn.pack(side="left", padx=(6, 0))
 
-        main = tk.Frame(self.root, bg=BG)
-        main.pack(expand=True, fill="both", padx=20, pady=6)
+        self.main = tk.Frame(self.root, bg=BG)
+        self.main.pack(expand=True, fill="both", padx=20, pady=6)
 
-        self.cpu_card = tk.Frame(main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
+        self.cpu_card = tk.Frame(self.main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
         self.cpu_card.pack(fill="x", pady=4, ipady=6)
 
         self.cpu_row1 = tk.Frame(self.cpu_card, bg=BG2)
@@ -210,7 +210,7 @@ class TempMonitor:
         self.cpu_status = tk.Label(self.cpu_card, text="Detecting...", font=("Segoe UI", 8), bg=BG2, fg=FG2)
         self.cpu_status.pack()
 
-        self.gpu_card = tk.Frame(main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
+        self.gpu_card = tk.Frame(self.main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
         self.gpu_card.pack(fill="x", pady=4, ipady=6)
 
         self.gpu_row2 = tk.Frame(self.gpu_card, bg=BG2)
@@ -235,7 +235,7 @@ class TempMonitor:
         self.gpu_status = tk.Label(self.gpu_card, text="Detecting...", font=("Segoe UI", 8), bg=BG2, fg=FG2)
         self.gpu_status.pack()
 
-        self.ram_card = tk.Frame(main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
+        self.ram_card = tk.Frame(self.main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
         self.ram_card.pack(fill="x", pady=4, ipady=4)
 
         row3 = tk.Frame(self.ram_card, bg=BG2)
@@ -307,25 +307,25 @@ class TempMonitor:
                 self.root.overrideredirect(False)
             except:
                 pass
-            self._set_bg_all(self.root, BG)
+            self.root.configure(bg=BG)
+            self.title_frame.configure(bg=BG)
             self.title_label.configure(bg=BG)
+            self.close_btn.configure(bg=BG)
             self.subtitle_text.configure(bg=BG)
-            self.footer_link.configure(bg=BG)
-            self.footer.configure(bg=BG)
             self.unit_btn.configure(bg=BG3)
             self.pin_btn.configure(bg=BG3)
             self.reset_btn.configure(bg=BG3)
-            self.minimal_btn.configure(bg=BG3)
+            self.minimal_btn.configure(bg=BG3, fg=FG2)
+            self.minimal_btn.config(text="\u25CB Opaque")
+            self.main.configure(bg=BG)
             self.cpu_card.configure(bg=BG2, highlightbackground=BG3)
             self.gpu_card.configure(bg=BG2, highlightbackground=BG3)
             self.ram_card.configure(bg=BG2, highlightbackground=BG3)
             for card in [self.cpu_card, self.gpu_card, self.ram_card]:
-                for child in card.winfo_children():
-                    try:
-                        child.configure(bg=BG2)
-                    except:
-                        pass
-            self.minimal_btn.config(text="\u25CB Opaque", fg=FG2)
+                self._set_bg_all(card, BG2)
+            for w in [self.footer.master, self.footer, self.footer_link]:
+                try: w.configure(bg=BG)
+                except: pass
 
     def reset_minmax(self):
         self.cpu_min = None
