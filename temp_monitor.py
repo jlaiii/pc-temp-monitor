@@ -102,7 +102,7 @@ class TempMonitor:
         except:
             pass
 
-        w, h = 520, 600
+        w, h = 360, 310
         sw = self.root.winfo_screenwidth()
         sh = self.root.winfo_screenheight()
         x = (sw - w) // 2
@@ -138,122 +138,122 @@ class TempMonitor:
 
     def setup_ui(self):
         self.title_frame = tk.Frame(self.root, bg=BG)
-        self.title_frame.pack(pady=(16, 4))
+        self.title_frame.pack(pady=(8, 2))
 
         self.title_frame.bind("<Button-1>", self._drag_start)
         self.title_frame.bind("<B1-Motion>", self._drag_move)
 
-        self.title_label = tk.Label(self.title_frame, text="PC Temperature Monitor", font=("Segoe UI", 16, "bold"),
+        self.title_label = tk.Label(self.title_frame, text="PC Temp Monitor", font=("Segoe UI", 13, "bold"),
                                      bg=BG, fg=FG)
         self.title_label.pack(side="left")
 
-        self.close_btn = tk.Label(self.title_frame, text="\u00D7", font=("Segoe UI", 14, "bold"),
+        self.close_btn = tk.Label(self.title_frame, text="\u00D7", font=("Segoe UI", 12, "bold"),
                                    bg=BG, fg=RED, cursor="hand2")
-        self.close_btn.pack(side="right", padx=(20, 0))
+        self.close_btn.pack(side="right", padx=(10, 0))
         self.close_btn.bind("<Button-1>", lambda e: self.on_close())
 
         subtitle_frame = tk.Frame(self.root, bg=BG)
         subtitle_frame.pack()
-        self.subtitle_text = tk.Label(subtitle_frame, text="Real-time CPU & GPU tracking",
-                                       font=("Segoe UI", 9), bg=BG, fg=FG2)
+        self.subtitle_text = tk.Label(subtitle_frame, text="CPU & GPU temps",
+                                        font=("Segoe UI", 7), bg=BG, fg=FG2)
         self.subtitle_text.pack(side="left")
 
-        self.unit_btn = tk.Button(subtitle_frame, text="\u00b0C", font=("Segoe UI", 8, "bold"),
+        self.unit_btn = tk.Button(subtitle_frame, text="\u00b0C", font=("Segoe UI", 7, "bold"),
                                    bg=BG3, fg=FG, activebackground=BG2, activeforeground=FG,
-                                   relief="flat", padx=8, cursor="hand2", bd=0,
+                                   relief="flat", padx=5, cursor="hand2", bd=0,
                                    command=self.toggle_unit)
-        self.unit_btn.pack(side="left", padx=(10, 0))
+        self.unit_btn.pack(side="left", padx=(6, 0))
 
-        self.pin_btn = tk.Button(subtitle_frame, text="\u25B2 Pin", font=("Segoe UI", 8, "bold"),
+        self.pin_btn = tk.Button(subtitle_frame, text="\u25B2 Pin", font=("Segoe UI", 7, "bold"),
                                   bg=BG3, fg=BLUE, activebackground=BG2, activeforeground=BLUE,
-                                  relief="flat", padx=8, cursor="hand2", bd=0,
+                                  relief="flat", padx=5, cursor="hand2", bd=0,
                                   command=self.toggle_pin)
-        self.pin_btn.pack(side="left", padx=(6, 0))
+        self.pin_btn.pack(side="left", padx=(3, 0))
 
-        self.reset_btn = tk.Button(subtitle_frame, text="Reset Lo/Hi", font=("Segoe UI", 8, "bold"),
+        self.reset_btn = tk.Button(subtitle_frame, text="Reset", font=("Segoe UI", 7, "bold"),
                                     bg=BG3, fg=YELLOW, activebackground=BG2, activeforeground=YELLOW,
-                                    relief="flat", padx=8, cursor="hand2", bd=0,
+                                    relief="flat", padx=5, cursor="hand2", bd=0,
                                     command=self.reset_minmax)
-        self.reset_btn.pack(side="left", padx=(6, 0))
+        self.reset_btn.pack(side="left", padx=(3, 0))
 
-        self.minimal_btn = tk.Button(subtitle_frame, text="\u25CB Opaque", font=("Segoe UI", 8, "bold"),
+        self.minimal_btn = tk.Button(subtitle_frame, text="\u25CB Opaque", font=("Segoe UI", 7, "bold"),
                                       bg=BG3, fg=FG2, activebackground=BG2, activeforeground=FG,
-                                      relief="flat", padx=8, cursor="hand2", bd=0,
+                                      relief="flat", padx=5, cursor="hand2", bd=0,
                                       command=self.toggle_minimal)
-        self.minimal_btn.pack(side="left", padx=(6, 0))
+        self.minimal_btn.pack(side="left", padx=(3, 0))
 
         self.main = tk.Frame(self.root, bg=BG)
-        self.main.pack(expand=True, fill="both", padx=20, pady=6)
+        self.main.pack(expand=True, fill="both", padx=12, pady=3)
 
         self.cpu_card = tk.Frame(self.main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
-        self.cpu_card.pack(fill="x", pady=4, ipady=6)
+        self.cpu_card.pack(fill="x", pady=2, ipady=3)
 
         self.cpu_row1 = tk.Frame(self.cpu_card, bg=BG2)
-        self.cpu_row1.pack(fill="x", padx=16, pady=(8, 0))
-        tk.Label(self.cpu_row1, text="CPU", font=("Segoe UI", 13, "bold"), bg=BG2, fg=BLUE).pack(side="left")
+        self.cpu_row1.pack(fill="x", padx=10, pady=(4, 0))
+        tk.Label(self.cpu_row1, text="CPU", font=("Segoe UI", 11, "bold"), bg=BG2, fg=BLUE).pack(side="left")
         self.cpu_usage_label = tk.Label(self.cpu_row1, text="", font=("Segoe UI", 9), bg=BG2, fg=FG2)
         self.cpu_usage_label.pack(side="right")
 
-        self.cpu_temp_label = tk.Label(self.cpu_card, text="-- \u00b0C", font=("Segoe UI", 32, "bold"),
+        self.cpu_temp_label = tk.Label(self.cpu_card, text="-- \u00b0C", font=("Segoe UI", 26, "bold"),
                                         bg=BG2, fg=FG2)
-        self.cpu_temp_label.pack(pady=(0, 2))
+        self.cpu_temp_label.pack(pady=(0, 1))
 
         self.cpu_minmax_frame = tk.Frame(self.cpu_card, bg=BG2)
         self.cpu_minmax_frame.pack()
-        tk.Label(self.cpu_minmax_frame, text="Lo ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.cpu_min_label = tk.Label(self.cpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=BLUE)
+        tk.Label(self.cpu_minmax_frame, text="Lo ", font=("Segoe UI", 7), bg=BG2, fg=FG2).pack(side="left")
+        self.cpu_min_label = tk.Label(self.cpu_minmax_frame, text="--", font=("Segoe UI", 7, "bold"), bg=BG2, fg=BLUE)
         self.cpu_min_label.pack(side="left")
-        tk.Label(self.cpu_minmax_frame, text="  Hi ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.cpu_max_label = tk.Label(self.cpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=RED)
+        tk.Label(self.cpu_minmax_frame, text=" Hi ", font=("Segoe UI", 7), bg=BG2, fg=FG2).pack(side="left")
+        self.cpu_max_label = tk.Label(self.cpu_minmax_frame, text="--", font=("Segoe UI", 7, "bold"), bg=BG2, fg=RED)
         self.cpu_max_label.pack(side="left")
 
-        self.cpu_status = tk.Label(self.cpu_card, text="Detecting...", font=("Segoe UI", 8), bg=BG2, fg=FG2)
+        self.cpu_status = tk.Label(self.cpu_card, text="Detecting...", font=("Segoe UI", 7), bg=BG2, fg=FG2)
         self.cpu_status.pack()
 
         self.gpu_card = tk.Frame(self.main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
-        self.gpu_card.pack(fill="x", pady=4, ipady=6)
+        self.gpu_card.pack(fill="x", pady=2, ipady=3)
 
         self.gpu_row2 = tk.Frame(self.gpu_card, bg=BG2)
-        self.gpu_row2.pack(fill="x", padx=16, pady=(8, 0))
-        tk.Label(self.gpu_row2, text="GPU", font=("Segoe UI", 13, "bold"), bg=BG2, fg=PURPLE).pack(side="left")
+        self.gpu_row2.pack(fill="x", padx=10, pady=(4, 0))
+        tk.Label(self.gpu_row2, text="GPU", font=("Segoe UI", 11, "bold"), bg=BG2, fg=PURPLE).pack(side="left")
         self.gpu_usage_label = tk.Label(self.gpu_row2, text="", font=("Segoe UI", 9), bg=BG2, fg=FG2)
         self.gpu_usage_label.pack(side="right")
 
-        self.gpu_temp_label = tk.Label(self.gpu_card, text="-- \u00b0C", font=("Segoe UI", 32, "bold"),
+        self.gpu_temp_label = tk.Label(self.gpu_card, text="-- \u00b0C", font=("Segoe UI", 26, "bold"),
                                         bg=BG2, fg=FG2)
-        self.gpu_temp_label.pack(pady=(0, 2))
+        self.gpu_temp_label.pack(pady=(0, 1))
 
         self.gpu_minmax_frame = tk.Frame(self.gpu_card, bg=BG2)
         self.gpu_minmax_frame.pack()
-        tk.Label(self.gpu_minmax_frame, text="Lo ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.gpu_min_label = tk.Label(self.gpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=PURPLE)
+        tk.Label(self.gpu_minmax_frame, text="Lo ", font=("Segoe UI", 7), bg=BG2, fg=FG2).pack(side="left")
+        self.gpu_min_label = tk.Label(self.gpu_minmax_frame, text="--", font=("Segoe UI", 7, "bold"), bg=BG2, fg=PURPLE)
         self.gpu_min_label.pack(side="left")
-        tk.Label(self.gpu_minmax_frame, text="  Hi ", font=("Segoe UI", 8), bg=BG2, fg=FG2).pack(side="left")
-        self.gpu_max_label = tk.Label(self.gpu_minmax_frame, text="--", font=("Segoe UI", 8, "bold"), bg=BG2, fg=RED)
+        tk.Label(self.gpu_minmax_frame, text=" Hi ", font=("Segoe UI", 7), bg=BG2, fg=FG2).pack(side="left")
+        self.gpu_max_label = tk.Label(self.gpu_minmax_frame, text="--", font=("Segoe UI", 7, "bold"), bg=BG2, fg=RED)
         self.gpu_max_label.pack(side="left")
 
-        self.gpu_status = tk.Label(self.gpu_card, text="Detecting...", font=("Segoe UI", 8), bg=BG2, fg=FG2)
+        self.gpu_status = tk.Label(self.gpu_card, text="Detecting...", font=("Segoe UI", 7), bg=BG2, fg=FG2)
         self.gpu_status.pack()
 
         self.ram_card = tk.Frame(self.main, bg=BG2, highlightbackground=BG3, highlightthickness=1)
-        self.ram_card.pack(fill="x", pady=4, ipady=4)
+        self.ram_card.pack(fill="x", pady=2, ipady=2)
 
         row3 = tk.Frame(self.ram_card, bg=BG2)
-        row3.pack(fill="x", padx=16, pady=(6, 0))
-        tk.Label(row3, text="RAM", font=("Segoe UI", 10, "bold"), bg=BG2, fg=GREEN).pack(side="left")
-        self.ram_usage_label = tk.Label(row3, text="", font=("Segoe UI", 9), bg=BG2, fg=FG2)
+        row3.pack(fill="x", padx=10, pady=(3, 0))
+        tk.Label(row3, text="RAM", font=("Segoe UI", 9, "bold"), bg=BG2, fg=GREEN).pack(side="left")
+        self.ram_usage_label = tk.Label(row3, text="", font=("Segoe UI", 8), bg=BG2, fg=FG2)
         self.ram_usage_label.pack(side="right")
 
-        self.ram_bar_frame = tk.Frame(self.ram_card, bg=BG3, height=10)
-        self.ram_bar_frame.pack(fill="x", padx=16, pady=(4, 10))
+        self.ram_bar_frame = tk.Frame(self.ram_card, bg=BG3, height=6)
+        self.ram_bar_frame.pack(fill="x", padx=10, pady=(3, 6))
         self.ram_bar = tk.Frame(self.ram_bar_frame, bg=GREEN, height=10)
         self.ram_bar.place(x=0, y=0, relwidth=0, relheight=1)
 
         foot_frame = tk.Frame(self.root, bg=BG)
-        foot_frame.pack(side="bottom", pady=(0, 12))
-        self.footer = tk.Label(foot_frame, text="", font=("Segoe UI", 8), bg=BG, fg=FG2)
+        foot_frame.pack(side="bottom", pady=(0, 6))
+        self.footer = tk.Label(foot_frame, text="", font=("Segoe UI", 7), bg=BG, fg=FG2)
         self.footer.pack(side="left")
-        self.footer_link = tk.Label(foot_frame, text="made by jlaiii", font=("Segoe UI", 8),
+        self.footer_link = tk.Label(foot_frame, text="made by jlaiii", font=("Segoe UI", 7),
                                      bg=BG, fg=BLUE, cursor="hand2")
         self.footer_link.pack(side="left")
         self.footer_link.bind("<Button-1>", lambda e: self._open_github())
