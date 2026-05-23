@@ -264,15 +264,53 @@ class TempMonitor:
         txt = "\u25B2 Pin" if self.on_top else "\u25BC Pin"
         self.pin_btn.config(text=txt, fg=BLUE if self.on_top else FG2)
 
-    def toggle_minimal(self):
-        self.transparent = not self.transparent
-        alpha = 0.35 if self.transparent else 1.0
+    def _set_bg_all(self, parent, color):
         try:
-            self.root.attributes('-alpha', alpha)
+            parent.configure(bg=color)
         except:
             pass
-        self.minimal_btn.config(text="\u25C9 See-Through" if self.transparent else "\u25CB Opaque",
-                                fg=BLUE if self.transparent else FG2)
+        try:
+            for child in parent.winfo_children():
+                self._set_bg_all(child, color)
+        except:
+            pass
+
+    def toggle_minimal(self):
+        self.transparent = not self.transparent
+        if self.transparent:
+            self._set_bg_all(self.root, BG2)
+            self.cpu_card.configure(highlightbackground=BG2)
+            self.gpu_card.configure(highlightbackground=BG2)
+            self.ram_card.configure(highlightbackground=BG2)
+            try:
+                self.root.attributes('-transparentcolor', BG2)
+            except:
+                pass
+            self.minimal_btn.config(text="\u25C9 See-Through", fg=BLUE)
+        else:
+            try:
+                self.root.attributes('-transparentcolor', '')
+            except:
+                pass
+            self._set_bg_all(self.root, BG)
+            self.title_label.configure(bg=BG)
+            self.subtitle_text.configure(bg=BG)
+            self.footer_link.configure(bg=BG)
+            self.footer.configure(bg=BG)
+            self.unit_btn.configure(bg=BG3)
+            self.pin_btn.configure(bg=BG3)
+            self.reset_btn.configure(bg=BG3)
+            self.minimal_btn.configure(bg=BG3)
+            self.cpu_card.configure(bg=BG2, highlightbackground=BG3)
+            self.gpu_card.configure(bg=BG2, highlightbackground=BG3)
+            self.ram_card.configure(bg=BG2, highlightbackground=BG3)
+            for card in [self.cpu_card, self.gpu_card, self.ram_card]:
+                for child in card.winfo_children():
+                    try:
+                        child.configure(bg=BG2)
+                    except:
+                        pass
+            self.minimal_btn.config(text="\u25CB Opaque", fg=FG2)
 
     def reset_minmax(self):
         self.cpu_min = None
