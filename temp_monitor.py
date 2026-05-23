@@ -159,6 +159,12 @@ class TempMonitor:
                                   command=self.toggle_pin)
         self.pin_btn.pack(side="left", padx=(6, 0))
 
+        self.reset_btn = tk.Button(subtitle_frame, text="Reset Lo/Hi", font=("Segoe UI", 8, "bold"),
+                                    bg=BG3, fg=YELLOW, activebackground=BG2, activeforeground=YELLOW,
+                                    relief="flat", padx=8, cursor="hand2", bd=0,
+                                    command=self.reset_minmax)
+        self.reset_btn.pack(side="left", padx=(6, 0))
+
         main = tk.Frame(self.root, bg=BG)
         main.pack(expand=True, fill="both", padx=20, pady=6)
 
@@ -248,6 +254,12 @@ class TempMonitor:
             pass
         txt = "\u25B2 Pin" if self.on_top else "\u25BC Pin"
         self.pin_btn.config(text=txt, fg=BLUE if self.on_top else FG2)
+
+    def reset_minmax(self):
+        self.cpu_min = None
+        self.cpu_max = None
+        self.gpu_min = None
+        self.gpu_max = None
 
     def detect_hardware(self):
         try:
