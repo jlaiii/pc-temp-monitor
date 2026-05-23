@@ -96,8 +96,9 @@ class TempMonitor:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Temp Monitor")
+        self.on_top = True
         try:
-            self.root.attributes('-topmost', True)
+            self.root.attributes('-topmost', self.on_top)
         except:
             pass
 
@@ -151,6 +152,12 @@ class TempMonitor:
                                    relief="flat", padx=8, cursor="hand2", bd=0,
                                    command=self.toggle_unit)
         self.unit_btn.pack(side="left", padx=(10, 0))
+
+        self.pin_btn = tk.Button(subtitle_frame, text="\u25B2 Pin", font=("Segoe UI", 8, "bold"),
+                                  bg=BG3, fg=BLUE, activebackground=BG2, activeforeground=BLUE,
+                                  relief="flat", padx=8, cursor="hand2", bd=0,
+                                  command=self.toggle_pin)
+        self.pin_btn.pack(side="left", padx=(6, 0))
 
         main = tk.Frame(self.root, bg=BG)
         main.pack(expand=True, fill="both", padx=20, pady=6)
@@ -232,6 +239,15 @@ class TempMonitor:
     def toggle_unit(self):
         self.use_fahrenheit = not self.use_fahrenheit
         self.unit_btn.config(text="\u00b0F" if self.use_fahrenheit else "\u00b0C")
+
+    def toggle_pin(self):
+        self.on_top = not self.on_top
+        try:
+            self.root.attributes('-topmost', self.on_top)
+        except:
+            pass
+        txt = "\u25B2 Pin" if self.on_top else "\u25BC Pin"
+        self.pin_btn.config(text=txt, fg=BLUE if self.on_top else FG2)
 
     def detect_hardware(self):
         try:
