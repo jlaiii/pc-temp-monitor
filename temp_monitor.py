@@ -133,6 +133,16 @@ class TempMonitor:
         self.gpu_min = None
         self.gpu_max = None
 
+        self.logging_enabled = False
+        self.log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp_log.txt")
+        self._log_counter = 0
+        self._log_start = None
+        self._log_events = []
+        self._log_snapshots = []
+        self._log_cpu_vals = []
+        self._log_gpu_vals = []
+        self._log_ram_vals = []
+
         _init_lhm()
         self.setup_ui()
         self.detect_hardware()
@@ -192,6 +202,12 @@ class TempMonitor:
                                       relief="flat", padx=6, cursor="hand2", bd=0,
                                       command=self.toggle_minimal)
         self.minimal_btn.pack(side="left", padx=(3, 0))
+
+        self.log_btn = tk.Button(subtitle_frame, text="Log OFF", font=("Segoe UI", 8, "bold"),
+                                  bg=BG3, fg=FG2, activebackground=BG2, activeforeground=FG,
+                                  relief="flat", padx=6, cursor="hand2", bd=0,
+                                  command=self.toggle_logging)
+        self.log_btn.pack(side="left", padx=(3, 0))
 
         self.main = tk.Frame(self.root, bg=BG)
         self.main.pack(expand=True, fill="both", padx=12, pady=3)
@@ -301,7 +317,7 @@ class TempMonitor:
             self.cpu_card.configure(highlightbackground=BG2)
             self.gpu_card.configure(highlightbackground=BG2)
             self.ram_card.configure(highlightbackground=BG2)
-            for btn in [self.unit_btn, self.pin_btn, self.reset_btn, self.minimal_btn]:
+            for btn in [self.unit_btn, self.pin_btn, self.reset_btn, self.minimal_btn, self.log_btn]:
                 btn.configure(bg=BG3, fg=FG)
             self.minimal_btn.configure(fg=BLUE)
             self.close_btn.configure(bg="#2a0a0a")
@@ -328,6 +344,7 @@ class TempMonitor:
             self.pin_btn.configure(bg=BG3)
             self.reset_btn.configure(bg=BG3)
             self.minimal_btn.configure(bg=BG3, fg=FG2)
+            self.log_btn.configure(bg=BG3, fg=GREEN if self.logging_enabled else FG2)
             self.minimal_btn.config(text="\u25CB Opaque")
             self.main.configure(bg=BG)
             self.cpu_card.configure(bg=BG2, highlightbackground=BG3)
@@ -344,6 +361,163 @@ class TempMonitor:
         self.cpu_max = None
         self.gpu_min = None
         self.gpu_max = None
+
+    def toggle_logging(self):
+        self.logging_enabled = not self.logging_enabled
+        if self.logging_enabled:
+            self._log_start = datetime.now()
+            self._log_counter = 0
+            self._log_events = []
+            self._log_snapshots = []
+            self._log_cpu_vals = []
+            self._log_gpu_vals = []
+            self._log_ram_vals = []
+            self.log_btn.config(text="Log ON", fg=GREEN)
+            self._write_log()
+        else:
+            self._finalize_log()
+            self.log_btn.config(text="Log OFF", fg=FG2)
+
+    def _gen_verdict(self):
+        cpu_s = self._log_cpu_vals
+        gpu_s = self._log_gpu_vals
+        cpu_avg = sum(cpu_s) / len(cpu_s) if cpu_s else 0
+        gpu_avg = sum(gpu_s) / len(gpu_s) if gpu_s else 0
+        cpu_hi = max(cpu_s) if cpu_s else 0
+        gpu_hi = max(gpu_s) if gpu_s else 0
+        unit = "F" if self.use_fahrenheit else "C"
+        cpu_d_hi = round(cpu_hi * 9 / 5 + 32) if self.use_fahrenheit else cpu_hi
+        gpu_d_hi = round(gpu_hi * 9 / 5 + 32) if self.use_fahrenheit else gpu_hi
+        cpu_d_avg = round(cpu_avg * 9 / 5 + 32) if self.use_fahrenheit else cpu_avg
+        gpu_d_avg = round(gpu_avg * 9 / 5 + 32) if self.use_fahrenheit else gpu_avg
+
+        if cpu_hi > 80 or gpu_hi > 85:
+            return f"WARNING - High temps: CPU max {cpu_d_hi:.0f}{unit}, GPU max {gpu_d_hi:.0f}{unit}"
+        elif cpu_hi > 70 or gpu_hi > 75:
+            return f"CAUTION - Elevated temps: CPU max {cpu_d_hi:.0f}{unit}, GPU max {gpu_d_hi:.0f}{unit}"
+        elif gpu_hi > 0:
+            return f"OK - Normal temps (CPU avg {cpu_d_avg:.0f}{unit}, GPU avg {gpu_d_avg:.0f}{unit})"
+        else:
+            return "OK - Normal temps"
+
+    def _write_log(self):
+        try:
+            cpu_s = self._log_cpu_vals
+            gpu_s = self._log_gpu_vals
+            ram_s = self._log_ram_vals
+
+            cpu_avg = sum(cpu_s) / len(cpu_s) if cpu_s else 0
+            gpu_avg = sum(gpu_s) / len(gpu_s) if gpu_s else 0
+            ram_avg = sum(ram_s) / len(ram_s) if ram_s else 0
+            cpu_lo = min(cpu_s) if cpu_s else 0
+            cpu_hi = max(cpu_s) if cpu_s else 0
+            gpu_lo = min(gpu_s) if gpu_s else 0
+            gpu_hi = max(gpu_s) if gpu_s else 0
+            ram_lo = min(ram_s) if ram_s else 0
+            ram_hi = max(ram_s) if ram_s else 0
+
+            unit = "F" if self.use_fahrenheit else "C"
+            conv = (lambda v: round(v * 9 / 5 + 32)) if self.use_fahrenheit else (lambda v: round(v))
+
+            lines = []
+            lines.append("=== PC TEMP MONITOR - SESSION LOG ===")
+            lines.append(f"Session: {self._log_start.strftime('%Y-%m-%d %H:%M')}")
+            dur = (datetime.now() - self._log_start).total_seconds()
+            if dur < 90:
+                lines.append(f"Duration: {int(dur)}s")
+            else:
+                lines.append(f"Duration: {dur/60:.1f} min")
+            hw = []
+            if self.cpu_source:
+                hw.append(f"CPU={self.cpu_source}")
+            if self.gpu_name:
+                hw.append(f"GPU={self.gpu_name}")
+            lines.append(f"Hardware: {', '.join(hw) if hw else 'detecting...'}")
+            lines.append(f"Unit: {unit}")
+            lines.append("")
+            lines.append(f"VERDICT: {self._gen_verdict()}")
+            lines.append("")
+            lines.append(f"{'SUMMARY':>7}  {'Min':>5}  {'Max':>5}  {'Avg':>5}  {'Samples':>8}")
+            lines.append(f"CPU     {conv(cpu_lo):5.0f}{unit} {conv(cpu_hi):5.0f}{unit} {conv(cpu_avg):5.0f}{unit} {len(cpu_s):8}")
+            if gpu_s:
+                lines.append(f"GPU     {conv(gpu_lo):5.0f}{unit} {conv(gpu_hi):5.0f}{unit} {conv(gpu_avg):5.0f}{unit} {len(gpu_s):8}")
+            lines.append(f"RAM     {ram_lo:5.0f}% {ram_hi:5.0f}% {ram_avg:5.0f}% {len(ram_s):8}")
+            lines.append("")
+
+            if self._log_events:
+                lines.append(f"ALERTS (CPU>70{unit} / GPU>75{unit}) -- {len(self._log_events)} events")
+                for ev in self._log_events[-100:]:
+                    lines.append(ev)
+                lines.append("")
+
+            if self._log_snapshots:
+                lines.append(f"SNAPSHOTS (10s intervals) -- last {len(self._log_snapshots)}")
+                for snap in self._log_snapshots:
+                    lines.append(snap)
+                lines.append("")
+
+            lines.append("=== END LOG ===")
+
+            with open(self.log_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines))
+        except:
+            pass
+
+    def _log_sample(self):
+        if not self.logging_enabled:
+            return
+        try:
+            self._log_counter += 1
+            now = datetime.now().strftime("%H:%M:%S")
+
+            cpu_t = self.cpu_temp
+            gpu_t = self.gpu_temp
+            ram = self.ram_usage
+            unit = "F" if self.use_fahrenheit else "C"
+
+            if cpu_t is not None:
+                self._log_cpu_vals.append(cpu_t)
+            if gpu_t is not None:
+                self._log_gpu_vals.append(gpu_t)
+            self._log_ram_vals.append(ram)
+
+            cpu_disp = f"{int(self.to_unit(cpu_t)[0])}{unit}({self.cpu_usage}%)" if cpu_t is not None else "N/A"
+            gpu_disp = f"{int(self.to_unit(gpu_t)[0])}{unit}({self.gpu_usage}%)" if gpu_t is not None else "N/A"
+            ram_disp = f"{ram}%"
+            line = f"{now}  CPU {cpu_disp}  GPU {gpu_disp}  RAM {ram_disp}"
+
+            is_event = False
+            if cpu_t is not None and cpu_t > 70:
+                is_event = True
+            if gpu_t is not None and gpu_t > 75:
+                is_event = True
+
+            if is_event:
+                self._log_events.append(line)
+                if len(self._log_events) > 100:
+                    self._log_events.pop(0)
+
+            if self._log_counter % 5 == 0:
+                self._log_snapshots.append(line)
+                if len(self._log_snapshots) > 20:
+                    self._log_snapshots.pop(0)
+
+            if self._log_counter % 5 == 0:
+                self._write_log()
+        except:
+            pass
+
+    def _finalize_log(self):
+        try:
+            if not self._log_events and not self._log_snapshots:
+                if os.path.isfile(self.log_path):
+                    os.remove(self.log_path)
+                return
+            with open(self.log_path, "a", encoding="utf-8") as f:
+                now = datetime.now().strftime("%H:%M:%S")
+                f.write(f"\nLogging stopped at {now}\n")
+        except:
+            pass
 
     def detect_hardware(self):
         try:
@@ -540,6 +714,8 @@ class TempMonitor:
         except:
             pass
 
+        self._log_sample()
+
         now = datetime.now().strftime("%I:%M:%S %p")
         unit = "\u00b0F" if self.use_fahrenheit else "\u00b0C"
         self.footer.config(text=f"{now}  |  {unit}  |  Admin mode  |  ")
@@ -566,6 +742,7 @@ class TempMonitor:
 
     def on_close(self):
         self.running = False
+        self._finalize_log()
         if LHM_COMPUTER is not None:
             try:
                 LHM_COMPUTER.Close()
